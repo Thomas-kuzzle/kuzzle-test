@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Client chat</title>
+
+<body>
+    <button class="favorite styled"
+        onclick="sendMessage(document.getElementById('author').value, document.getElementById('message').value)"
+        type="button">send message</button>
+    <br>
+    <label for="author">Author</label>
+    <br>
+    <input id="author" type="text" size="15" /><br />
+    <br>
+    <label for="message">Message</label>
+    <br>
+    <textarea id="message" cols="20" rows="5" wrap="hard"></textarea>
+    <br>
+    <label for="terminal">Terminal</label>
+    <br>
+    <textarea rows="10" cols="60" id="terminal"></textarea>
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/kuzzle-sdk/dist/kuzzle.min.js"></script>
+<script>
+    class Client {
+        constructor() {
+            this.kuzzle = new KuzzleSDK.Kuzzle(new KuzzleSDK.WebSocket('localhost'));
+            this.kuzzle.on('networkError', error => {
+                console.error('Network Error: ', error);
+            });
+        }
+        async connect() {
+            await this.kuzzle.connect();
+        }
+        async disconnect() {
+            this.kuzzle.disconnect();
+        }
+
+        async badWord() {
+            try {
+                const { result } = await this.kuzzle.query({
+                    controller: "realtime",
+                    action: "subscribe",
+                    index: "chat",
+                    collection: "real-time-messages",
+                    body: {
+                        equals: {
+                            message: "zut"
+                        }
+                    }
+                });
+
+                this.kuzzle.protocol.on(result.channel, (notification) => {
+                    if (document.getElementById('author').value === notification.result._source.author) {
+                        this.appendConsole(`Stay polite !`);
+                    } else {
+                        this.appendConsole(`${notification.result._source.author}: is not polite`);
+                    }
+                });
+            }
+            catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        async subscribe() {
+            try {
+
+                const { result } = await this.kuzzle.query({
+                    controller: "realtime",
+                    action: "subscribe",
+                    index: "chat",
+                    collection: "real-time-messages",
+                    body: {
+                    }
+                });
+
+                this.kuzzle.protocol.on(result.channel, (notification) => {
+                    this.appendConsole(`${notification.result._source.author}: ${notification.result._source.message}`);
+                });
+            }
+            catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        async appendConsole(text) {
+            if (text) {
+                document.getElementById('terminal').append(text + "\n");
+            }
+        }
+
+        async sendMessage(author, message) {
+            if (message.length > 255) {
+                return "Message too long";
+            } else if (!message) {
+                return "Message empty";
+            } else if (!author) {
+                return "author empty";
+            } else {
+                const chatMessage = {
+                    author: author,
+                    message: message,
+                };
+                const { result } = await this.kuzzle.query({
+                    controller: "realtime",
+                    action: "publish",
+                    index: "chat",
+                    collection: "real-time-messages",
+                    body: {
+                        author: author,
+                        message: message,
+                    }
+                });                
+            }
+        }
+    }
+
+    const client = new Client();
+    async function sendMessage(author, message) {
+        client.connect(author, message);
+        const res = await client.sendMessage(author, message);
+        client.appendConsole(res);
+
+    }
+
+    window.addEventListener('DOMContentLoaded', async function () {
+        await client.connect();
+        await client.subscribe();
+        await client.badWord();
+    });
+    window.onbeforeunload = closingCode;
+    async function closingCode() {
+        await client.disconnect();
+        return null;
+    }
+
+</script>
+</head>
+
+
+</html>

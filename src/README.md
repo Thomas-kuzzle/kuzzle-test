@@ -1,4 +1,3 @@
-# kuzzle-test
 ## Exercice 1
     Premier essai avec Kourou sur windows
         - Kourou n'a pas l'air de fonctionner en natif sur windows.
@@ -29,4 +28,4 @@
 
 ## Bonus
     Le mot impoli est zut
-    Le message ne doit contenir que zut (j'ai pas vu de filtre contain ou par regex)
+    Le message ne doit que contenir zut (j'ai pas vu de filtre contain ou par regex)
