@@ -4,14 +4,14 @@
         - Kourou n'a pas l'air de fonctionner en natif sur windows.
     
     Second essai sur wsl2 (Ubuntu)
-        - Installation réussi sur wsl2, après installation des packages via `npm run docker:npm:install`.
+        - Installation réussie sur wsl2, après installation des packages via `npm run docker:npm:install`.
     
     L'installation suivant la doc n'est pas forcément aisée.
     En revanche dans le README.md (découvert plus tard évidement) tout y est.
 
 ## Exercice 2
     La création d'applications simples se fait facilement.
-    La documentation détail pas à pas.
+    La documentation détaille pas à pas.
 
     Pour utiliser le client
         Après un build lancer la commande `node ./dist/app_client.js` 
