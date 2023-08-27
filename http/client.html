@@ -49,8 +49,8 @@
                     index: "chat",
                     collection: "real-time-messages",
                     body: {
-                        equals: {
-                            message: "zut"
+                        regexp: {
+                            message: `\\b(?:zut)\\b`,
                         }
                     }
                 });
@@ -116,7 +116,7 @@
                         author: author,
                         message: message,
                     }
-                });                
+                });
             }
         }
     }
